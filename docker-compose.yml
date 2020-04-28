@@ -1,0 +1,52 @@
+version: '3.4'
+
+services:
+  php:
+    build: ./docker/php
+    container_name: craft_starter_php
+    volumes:
+      - .:/var/www/project
+    environment:
+      - SITE_NAME=craft-starter
+      - SITE_URL=http://127.0.0.1:8080
+      - ADMIN_USER=admin@example.com
+      - ADMIN_PASSWORD=password
+
+  web:
+    image: nginx:1.17
+    container_name: craft_starter_web
+    volumes:
+      - .:/var/www/project
+      - ./docker/web/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 8080:80
+
+  db:
+    image: mariadb:10.4
+    container_name: craft_starter_db
+    restart: always
+    volumes:
+      - ./docker/data/mariadb:/var/lib/mysql
+    ports:
+      - 33060:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=craft_starter
+      - MYSQL_USER=craft_starter
+      - MYSQL_PASSWORD=craft_starter
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: craft_starter_phpmyadmin
+    restart: always
+    ports:
+      - 8888:80
+    environment:
+      - PMA_HOST=craft_starter_db
+
+  maildev:
+    image: maildev/maildev:latest
+    container_name: craft_starter_maildev
+    restart: always
+    ports:
+      - 9000:80
